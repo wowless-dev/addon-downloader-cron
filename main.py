@@ -3,6 +3,8 @@ from google.cloud import tasks_v2
 import asyncio
 import json
 
+cf = "https://us-central1-www-wowless-dev.cloudfunctions.net/addon-downloader"
+
 
 async def do_publish():
     parent = (
@@ -17,9 +19,7 @@ async def do_publish():
         *[
             tasks_client.create_task(
                 parent=parent,
-                task={
-                    "http_request": {"url": f'http://localhost/moo{x["id"]}'}
-                },
+                task={"http_request": {"url": f'{cf}?cfid={x["id"]}'}},
             )
             for x in json.loads(
                 storage.Client()
