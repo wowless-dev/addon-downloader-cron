@@ -4,6 +4,7 @@ import asyncio
 import json
 
 cf = "https://us-central1-www-wowless-dev.cloudfunctions.net/addon-downloader"
+sa = "addon-downloader-invoker@www-wowless-dev.iam.gserviceaccount.com"
 
 
 async def do_publish():
@@ -19,7 +20,15 @@ async def do_publish():
         *[
             tasks_client.create_task(
                 parent=parent,
-                task={"http_request": {"url": f'{cf}?cfid={x["id"]}'}},
+                task={
+                    "http_request": {
+                        "oidc_token": {
+                            "audience": cf,
+                            "service_account_email": sa,
+                        },
+                        "url": f'{cf}?cfid={x["id"]}',
+                    }
+                },
             )
             for x in json.loads(
                 storage.Client()
